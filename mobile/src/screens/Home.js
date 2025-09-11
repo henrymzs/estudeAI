@@ -32,11 +32,15 @@ export default function Home({ navigation }) {
           Estamos melhorando sua experiência de aprendizado...
         </Text>
       </View>
-      <Button title='Primeiro Acesso' />
+      <Button
+        title='Primeiro Acesso'
+        onPress={() => navigation.navigate('Register')}
+      />
       <Button
         title="Já tenho uma conta"
         style={{ backgroundColor: 'transparent' }}
         textStyle={{ color: '#165DFB' }}
+        onPress={() => navigation.navigate('Login')}
       />
     </SafeAreaView>
   );
