@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, SafeAreaView, StatusBar, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, StatusBar, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import { Button } from '../components/button';
 import { Input } from '../components/input';
@@ -64,25 +64,23 @@ export default function Register({ navigation }) {
                             />
 
                             <Button
-                                title={'Já tem uma conta? Entrar'}
+                                title={'Já tem conta? Entrar'}
                                 style={styles.secondaryButton}
                                 textStyle={styles.secondaryButtonText}
                                 onPress={() => navigation.navigate('Login')}
                             />
 
-                            <Button
-                                title={'Entrar como visitante'}
-                                style={styles.tertiaryButton}
-                                textStyle={styles.tertiaryButtonText}
-                            />
                         </View>
                     </View>
 
                     <View style={styles.footer}>
-                        <Text style={styles.footerText}>
-                            Ao continuar, você concorda com nossa{' '}
-                            <Text style={styles.footerLink}>Política de Privacidade</Text>
-                        </Text>
+                        <TouchableOpacity
+                            style={styles.createAccountLink}
+                        >
+                            <Text style={styles.createAccountText}>
+                                Ao continuar, você concorda com nossa{' '}<Text style={styles.createAccountLinkText}>Política de Privacidade</Text>
+                            </Text>
+                        </TouchableOpacity>
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
@@ -105,6 +103,7 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         paddingHorizontal: 20,
         paddingBottom: 20,
+        justifyContent: 'space-between',
     },
     headerSection: {
         alignItems: 'center',
@@ -170,7 +169,6 @@ const styles = StyleSheet.create({
     },
     buttonsContainer: {
         marginTop: 8,
-        gap: 12,
     },
     primaryButton: {
         marginBottom: 4,
@@ -195,16 +193,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingTop: 16,
         paddingBottom: 24,
+    }, createAccountLink: {
+        paddingVertical: 8,
     },
-    footerText: {
-        fontSize: 12,
-        color: '#9ca3af',
+    createAccountText: {
+        fontSize: 14,
+        color: '#6b7280',
         textAlign: 'center',
-        lineHeight: 16,
-        fontWeight: '400',
-        paddingHorizontal: 20,
     },
-    footerLink: {
+    createAccountLinkText: {
         color: '#2563EB',
         fontWeight: '600',
     },
