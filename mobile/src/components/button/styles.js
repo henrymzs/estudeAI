@@ -8,10 +8,17 @@ export const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
+        flexDirection: 'row', 
     },
     title: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#fff',
     },
-})
+    leftIcon: {
+        marginRight: 8, 
+    },
+    rightIcon: {
+        marginLeft: 8, 
+    },
+});
