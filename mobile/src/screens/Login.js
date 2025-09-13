@@ -2,8 +2,64 @@ import { View, Text, StyleSheet, SafeAreaView, StatusBar, ScrollView, KeyboardAv
 import { Ionicons } from "@expo/vector-icons";
 import { Button } from '../components/button';
 import { Input } from '../components/input';
+import { useState } from 'react';
 
 export default function Login({ navigation }) {
+    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
+
+    const validateEmail = (value) => {
+        if (!value.trim()) return 'Email é obrigatório';
+        if (!EMAIL_REGEX.test(value.trim())) return 'Email inválido';
+        return null;
+    };
+
+    const validatePassword = (value) => {
+        if (!value) return 'Senha é obrigatória';
+        if (value.length < 6) return 'Senha deve ter pelo menos 6 caracteres';
+        return null;
+    };
+
+    const handleEmailChange = (text) => {
+        setEmail(text);
+        if (errors.email) {
+            setErrors(prev => ({ ...prev, email: null }));
+        }
+    };
+
+    const handlePasswordChange = (text) => {
+        setPassword(text);
+        if (errors.password) {
+            setErrors(prev => ({ ...prev, password: null }));
+        }
+    };
+
+    const validateForm = () => {
+        const newErrors = {};
+
+        const emailError = validateEmail(email);
+        if (emailError) newErrors.email = emailError;
+
+        const passwordError = validatePassword(password);
+        if (passwordError) newErrors.password = passwordError;
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleEmailBlur = () => {
+        const error = validateEmail(email);
+        setErrors(prev => ({ ...prev, email: error }));
+    };
+
+    const handlePasswordBlur = () => {
+        const error = validatePassword(password);
+        setErrors(prev => ({ ...prev, password: error }));
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#f8f9fa" />
@@ -36,6 +92,9 @@ export default function Login({ navigation }) {
                                 leftIcon={<Ionicons name="mail-outline" size={18} color="#666" />}
                                 placeholder="Digite seu email"
                                 keyboardType="email-address"
+                                onChangeText={handleEmailChange}
+                                onBlur={handleEmailBlur}
+                                error={errors.email}
                             />
                         </View>
 
@@ -45,6 +104,9 @@ export default function Login({ navigation }) {
                                 leftIcon={<Ionicons name="lock-closed-outline" size={18} color="#666" />}
                                 placeholder="Digite sua senha"
                                 isPassword={true}
+                                onChangeText={handlePasswordChange}
+                                onBlur={handlePasswordBlur}
+                                error={errors.password}
                             />
 
                             <TouchableOpacity
@@ -57,7 +119,9 @@ export default function Login({ navigation }) {
                         </View>
 
                         <Button
-                            title="Entrar"
+                            title={loading ? 'Entrando na sua conta...' : 'Entrar'}
+                            style={styles.primaryButton}
+                            disable={loading}
                         />
 
                         <View style={styles.secondaryActions}>
