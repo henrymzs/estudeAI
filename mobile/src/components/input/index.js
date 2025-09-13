@@ -1,9 +1,9 @@
-import { View, TextInput, TouchableOpacity } from "react-native";
+import { View, TextInput, TouchableOpacity, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { styles } from "./styles";
 
-export function Input({ leftIcon, rightIcon, isPassword = false, style, ...rest }) {
+export function Input({ leftIcon, rightIcon, isPassword = false, style, error, ...rest }) {
     const [passwordVisible, setPasswordVisible] = useState(false);
 
     const togglePasswordVisibility = () => {
@@ -23,28 +23,36 @@ export function Input({ leftIcon, rightIcon, isPassword = false, style, ...rest 
     const finalSecureTextEntry = isPassword ? !passwordVisible : rest.secureTextEntry;
 
     return (
-        <View style={styles.inputContainer}>
-            {leftIcon && (
-                <View style={styles.leftIconContainer}>
-                    {leftIcon}
-                </View>
-            )}
+        <View style={styles.container}>
+            <View style={[
+                styles.inputContainer,
+                error && styles.inputContainerError]}>
+                {leftIcon && (
+                    <View style={styles.leftIconContainer}>
+                        {leftIcon}
+                    </View>
+                )}
 
-            <TextInput
-                style={[
-                    styles.input,
-                    leftIcon && styles.inputWithLeftIcon,
-                    (rightIcon || isPassword) && styles.inputWithRightIcon,
-                    style
-                ]}
-                secureTextEntry={finalSecureTextEntry}
-                {...rest}
-            />
+                <TextInput
+                    style={[
+                        styles.input,
+                        leftIcon && styles.inputWithLeftIcon,
+                        (rightIcon || isPassword) && styles.inputWithRightIcon,
+                        style
+                    ]}
+                    secureTextEntry={finalSecureTextEntry}
+                    {...rest}
+                />
 
-            {finalRightIcon && (
-                <View style={styles.rightIconContainer}>
-                    {finalRightIcon}
-                </View>
+                {finalRightIcon && (
+                    <View style={styles.rightIconContainer}>
+                        {finalRightIcon}
+                    </View>
+                )}
+            </View>
+
+            {error && (
+                <Text style={styles.errorText}>{error}</Text>
             )}
         </View>
     );

@@ -1,6 +1,9 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
+    container: {
+        width: '100%',
+    },
     inputContainer: {
         position: 'relative',
         flexDirection: 'row',
@@ -18,10 +21,10 @@ export const styles = StyleSheet.create({
         color: "#222222",
     },
     inputWithLeftIcon: {
-        paddingLeft: 45, 
+        paddingLeft: 45,
     },
     inputWithRightIcon: {
-        paddingRight: 45, 
+        paddingRight: 45,
     },
     leftIconContainer: {
         position: 'absolute',
@@ -36,5 +39,17 @@ export const styles = StyleSheet.create({
         zIndex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    inputContainerError: {
+        borderColor: '#ef4444',
+        borderWidth: 2,
+        backgroundColor: '#fef2f2',
+    },
+    errorText: {
+        color: '#ef4444',
+        fontSize: 12,
+        marginTop: 4,
+        marginLeft: 4,
+        fontWeight: '500',
     },
 });
