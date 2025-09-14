@@ -1,15 +1,25 @@
 import { View, Text, StyleSheet, SafeAreaView, StatusBar, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
-import { Button } from '../components/button';
-import { Input } from '../components/input';
+import { Button } from '../../components/button';
+import { Input } from '../../components/input';
 import { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 
-export default function Login({ navigation }) {
+export default function Register() {
+    const navigation = useNavigation();
     const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+
+    const validateName = (value) => {
+        if (!value.trim()) return 'Nome é obrigatório';
+        if (value.trim().length < 2) return 'Nome deve ter pelo menos 2 caracteres';
+        if (value.trim().length > 50) return 'Nome deve ter no máximo 50 caracteres';
+        return null;
+    };
 
     const validateEmail = (value) => {
         if (!value.trim()) return 'Email é obrigatório';
@@ -21,6 +31,13 @@ export default function Login({ navigation }) {
         if (!value) return 'Senha é obrigatória';
         if (value.length < 6) return 'Senha deve ter pelo menos 6 caracteres';
         return null;
+    };
+
+    const handleNameChange = (text) => {
+        setName(text);
+        if (errors.name) {
+            setErrors(prev => ({ ...prev, name: null }));
+        }
     };
 
     const handleEmailChange = (text) => {
@@ -40,6 +57,9 @@ export default function Login({ navigation }) {
     const validateForm = () => {
         const newErrors = {};
 
+        const nameError = validateName(name);
+        if (nameError) newErrors.name = nameError;
+
         const emailError = validateEmail(email);
         if (emailError) newErrors.email = emailError;
 
@@ -48,6 +68,11 @@ export default function Login({ navigation }) {
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
+    };
+
+    const handleNameBlur = () => {
+        const error = validateName(name);
+        setErrors(prev => ({ ...prev, name: error }));
     };
 
     const handleEmailBlur = () => {
@@ -83,8 +108,20 @@ export default function Login({ navigation }) {
                     </View>
 
                     <View style={styles.formSection}>
-                        <Text style={styles.formTitle}>Entrar</Text>
-                        <Text style={styles.formSubtitle}>Entre sua conta para continuar</Text>
+                        <Text style={styles.formTitle}>Criar Conta</Text>
+                        <Text style={styles.formSubtitle}>Crie sua conta gratuita</Text>
+
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.inputLabel}>Nome Único</Text>
+                            <Input
+                                leftIcon={<Ionicons name="person-outline" size={18} color="#666" />}
+                                placeholder="Nome único (ex: joao123)"
+                                value={name}
+                                onChangeText={handleNameChange}
+                                onBlur={handleNameBlur}
+                                error={errors.name}
+                            />
+                        </View>
 
                         <View style={styles.inputContainer}>
                             <Text style={styles.inputLabel}>Email</Text>
@@ -92,6 +129,7 @@ export default function Login({ navigation }) {
                                 leftIcon={<Ionicons name="mail-outline" size={18} color="#666" />}
                                 placeholder="Digite seu email"
                                 keyboardType="email-address"
+                                value={email}
                                 onChangeText={handleEmailChange}
                                 onBlur={handleEmailBlur}
                                 error={errors.email}
@@ -104,48 +142,30 @@ export default function Login({ navigation }) {
                                 leftIcon={<Ionicons name="lock-closed-outline" size={18} color="#666" />}
                                 placeholder="Digite sua senha"
                                 isPassword={true}
+                                value={password}
                                 onChangeText={handlePasswordChange}
                                 onBlur={handlePasswordBlur}
                                 error={errors.password}
                             />
 
-                            <TouchableOpacity
-                                style={styles.forgotPasswordLink}
-                            >
-                                <Text style={styles.forgotPasswordText}>
-                                    Esqueci minha senha
-                                </Text>
-                            </TouchableOpacity>
                         </View>
 
-                        <Button
-                            title={loading ? 'Entrando na sua conta...' : 'Entrar'}
-                            style={styles.primaryButton}
-                            disable={loading}
-                        />
+                        <View style={styles.buttonsContainer}>
+                            <Button
+                                title={loading ? 'Criando conta...' : 'Criar Conta'}
+                                style={styles.primaryButton}
+                                disable={loading}
+                            />
 
-                        <View style={styles.secondaryActions}>
                             <TouchableOpacity
                                 style={styles.createAccountLink}
-                                onPress={() => navigation.navigate('Register')}
+                                onPress={() => navigation.navigate('Login')}
                             >
                                 <Text style={styles.createAccountText}>
-                                    Não tem conta? <Text style={styles.createAccountLinkText}>Criar conta</Text>
+                                    Já tem conta? <Text style={styles.createAccountLinkText}>Entrar</Text>
                                 </Text>
                             </TouchableOpacity>
 
-                            <View style={styles.dividerContainer}>
-                                <View style={styles.divider} />
-                                <Text style={styles.dividerText}>ou</Text>
-                                <View style={styles.divider} />
-                            </View>
-
-                            <Button
-                                title="Entrar como visitante"
-                                leftIcon={<Ionicons name="person-outline" size={16} color="#6b7280" />}
-                                style={styles.guestButton}
-                                textStyle={styles.guestButtonText}
-                            />
                         </View>
                     </View>
 
@@ -178,6 +198,7 @@ const styles = StyleSheet.create({
     scrollContent: {
         flexGrow: 1,
         paddingHorizontal: 20,
+        paddingBottom: 20,
         justifyContent: 'space-between',
     },
     headerSection: {
@@ -242,20 +263,33 @@ const styles = StyleSheet.create({
         color: '#374151',
         marginBottom: 6,
     },
-    forgotPasswordLink: {
-        alignSelf: 'flex-end',
+    buttonsContainer: {
         marginTop: 8,
-        paddingVertical: 4,
     },
-    forgotPasswordText: {
-        fontSize: 14,
+    primaryButton: {
+        marginBottom: 4,
+    },
+    secondaryButton: {
+        backgroundColor: 'transparent',
+    },
+    secondaryButtonText: {
         color: '#2563EB',
+        fontWeight: '600',
+    },
+    tertiaryButton: {
+        backgroundColor: 'transparent',
+        borderWidth: 1,
+        borderColor: '#d1d5db',
+    },
+    tertiaryButtonText: {
+        color: '#374151',
         fontWeight: '500',
     },
-    secondaryActions: {
+    footer: {
         alignItems: 'center',
-    },
-    createAccountLink: {
+        paddingTop: 16,
+        paddingBottom: 24,
+    }, createAccountLink: {
         paddingVertical: 8,
     },
     createAccountText: {
@@ -266,44 +300,6 @@ const styles = StyleSheet.create({
     createAccountLinkText: {
         color: '#2563EB',
         fontWeight: '600',
-    },
-    dividerContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginVertical: 14,
-        width: '100%',
-    },
-    divider: {
-        flex: 1,
-        height: 1,
-        backgroundColor: '#e5e7eb',
-    },
-    dividerText: {
-        fontSize: 12,
-        color: '#9ca3af',
-        marginHorizontal: 16,
-        backgroundColor: '#fff',
-        paddingHorizontal: 8,
-    },
-    guestButton: {
-        width: '70%',
-        height: 48,
-        borderRadius: 8,
-        backgroundColor: '#f9fafb',
-        borderWidth: 1,
-        borderColor: '#e5e7eb',
-    },
-    guestButtonText: {
-        fontSize: 14,
-        color: '#6b7280',
-        marginLeft: 8,
-        fontWeight: '500',
-    },
-    footer: {
-        alignItems: 'center',
-        paddingTop: 20,
-        paddingBottom: 32,
-        backgroundColor: '#f8f9fa',
     },
 });
 

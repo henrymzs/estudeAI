@@ -1,8 +1,11 @@
 import { View, Text, StyleSheet, SafeAreaView, Animated } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Button } from "../components/button";
+import { Button } from "../../components/button";
+import { useNavigation } from "@react-navigation/native";
 
-export default function Home({ navigation }) {
+export default function Welcome() {
+  const navigation = useNavigation();
+
   return (
     <SafeAreaView style={styles.container}>
 
