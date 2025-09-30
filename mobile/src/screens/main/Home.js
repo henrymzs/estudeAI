@@ -1,9 +1,10 @@
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Home() {
-
+    const navigation = useNavigation();
     // dados mockados
     const userDecks = [
         {
@@ -119,7 +120,8 @@ export default function Home() {
             </ScrollView>
 
             <TouchableOpacity
-                activeOpacity={0.8} 
+                activeOpacity={0.8}
+                onPress={() => navigation.navigate('CreateDeck')} 
             >
                 <LinearGradient
                     colors={['#667eea', '#764ba2']} 
