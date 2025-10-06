@@ -4,6 +4,10 @@ import { Button } from '../../components/button';
 import { Input } from '../../components/input';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import { API_URL } from "../api";
+
+
 
 export default function Login() {
     const navigation = useNavigation();
@@ -125,7 +129,27 @@ export default function Login() {
                             title={loading ? 'Entrando na sua conta...' : 'Entrar'}
                             style={styles.primaryButton}
                             disable={loading}
-                            onPress={() => navigation.navigate('Main')}
+                            onPress={async () => {
+                                if (!validateForm()) return;
+
+                                setLoading(true);
+                                try {
+                                    const response = await axios.post(`${API_URL}/auth/login`, {
+                                        email,
+                                        password
+                                    });
+
+                                    const {access_token} = response.data;
+                                    console.log("Token recebido:", access_token);
+                                    navigation.navigate("Main");
+
+                                } catch (error) {
+                                    console.log("Erro no login:", error.response?.data || error.message);
+                                    setErrors({password: "Email ou senha incorretos"});
+                                } finally {
+                                    setLoading(false)
+                                }
+                            }}
                         />
 
                         <View style={styles.secondaryActions}>

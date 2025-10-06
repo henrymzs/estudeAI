@@ -4,6 +4,10 @@ import { Button } from '../../components/button';
 import { Input } from '../../components/input';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import { API_URL } from "../api";
+
+
 
 export default function Register() {
     const navigation = useNavigation();
@@ -155,6 +159,24 @@ export default function Register() {
                                 title={loading ? 'Criando conta...' : 'Criar Conta'}
                                 style={styles.primaryButton}
                                 disable={loading}
+                                onPress={async () => {
+                                    if (!validateForm()) return;
+                                    setLoading(true);
+                                    try {
+                                        const response = await axios.post(`${API_URL}/auth/register`, {
+                                            name,
+                                            email,
+                                            password
+                                        });
+                                        console.log("Usuario criado", response.data);
+                                        navigation.navigate("Login");
+                                    } catch (error) {
+                                        console.log("Erro no registro:", error.response?.data || error.message);
+                                        setErrors({email: "Erro ao criar conta"});
+                                    } finally {
+                                        setLoading(false);
+                                    }
+                                }}
                             />
 
                             <TouchableOpacity
