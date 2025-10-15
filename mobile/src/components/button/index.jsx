@@ -3,9 +3,10 @@ import { styles } from "./styles";
 
 export function Button({ title, leftIcon, rightIcon, style, textStyle, ...rest }) {
   return (
-    <TouchableOpacity 
-      activeOpacity={0.8} 
-      style={[styles.button, style]} 
+    <TouchableOpacity
+      testID="button-touchable"
+      activeOpacity={0.8}
+      style={[styles.button, style]}
       {...rest}
     >
       {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}

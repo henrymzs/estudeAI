@@ -2,16 +2,17 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native'; 
 import { styles } from "./styles.js";
 
-export function Card({ number, label, color, icon, onPress,numberStyle, style }) {
+export function Card({ number, label, color, icon, onPress, numberStyle, style }) {
   const Component = onPress ? TouchableOpacity : View;
   return (
     <Component
+      testID={onPress ? 'card-touchable' : 'card-view'}
       style={[styles.statCard, style]} 
       onPress={onPress}
       activeOpacity={onPress ? 0.7 : 1}
     >
       {icon && (
-        <View style={[styles.statIcon, { backgroundColor: color }]}> 
+        <View testID='card-icon' style={[styles.statIcon, { backgroundColor: color }]}> 
           <Text style={styles.iconText}>{icon}</Text>
         </View>
       )}
