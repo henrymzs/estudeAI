@@ -3,7 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { styles } from "./styles";
 
-export function Input({ leftIcon, rightIcon, isPassword = false, style, error, ...rest }) {
+export function Input({ leftIcon, rightIcon, isPassword = false, style, error, testID, ...rest }) {
     const [passwordVisible, setPasswordVisible] = useState(false);
 
     const togglePasswordVisibility = () => {
@@ -11,11 +11,14 @@ export function Input({ leftIcon, rightIcon, isPassword = false, style, error, .
     };
 
     const finalRightIcon = isPassword ? (
-        <TouchableOpacity onPress={togglePasswordVisibility}>
+        <TouchableOpacity
+            onPress={togglePasswordVisibility}
+            testID="password-toggle"
+        >
             <Ionicons
                 name={passwordVisible ? 'eye-off' : 'eye'}
                 size={18}
-                color={passwordVisible ? '#2563EB' : '#666'} 
+                color={passwordVisible ? '#2563EB' : '#666'}
             />
         </TouchableOpacity>
     ) : rightIcon;
@@ -41,6 +44,7 @@ export function Input({ leftIcon, rightIcon, isPassword = false, style, error, .
                         style
                     ]}
                     secureTextEntry={finalSecureTextEntry}
+                    testID={testID}
                     {...rest}
                 />
 
