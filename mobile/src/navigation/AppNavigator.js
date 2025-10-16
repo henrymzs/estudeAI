@@ -1,0 +1,18 @@
+import React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+
+import AuthNavigator from './AuthNavigator'
+import BottomTabs from './BottomTabs';
+import CreateDeck from '../screens/main/CreateDeck';
+
+const Stack = createStackNavigator();
+
+export default function AppNavigator() {
+    return (
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name='Auth' component={AuthNavigator} />
+            <Stack.Screen name='Main' component={BottomTabs} />
+            <Stack.Screen name='CreateDeck' component={CreateDeck} />
+        </Stack.Navigator>    
+    );
+}
