@@ -5,7 +5,7 @@ import { Input } from '../../components/input';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import { API_URL } from "../api";
+//import { API_URL } from "../api";
 
 
 
