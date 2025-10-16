@@ -19,7 +19,7 @@ export default function Welcome() {
       <View style={styles.content}>
         <View style={styles.logoWrapper}>
           <View style={styles.logo}>
-            <Ionicons name='school' size={48} color='#2563EB' />
+            <Ionicons testID='school-icon' name='school' size={48} color='#2563EB' />
           </View>
         </View>
 
