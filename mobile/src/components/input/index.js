@@ -46,6 +46,7 @@ export function Input({ leftIcon, rightIcon, isPassword = false, style, error, t
                     secureTextEntry={finalSecureTextEntry}
                     testID={testID}
                     {...rest}
+                    placeholderTextColor='#A0A0A0'
                 />
 
                 {finalRightIcon && (
