@@ -1,13 +1,11 @@
 import { View, Text, StyleSheet, SafeAreaView, StatusBar, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
-import { Button } from '../../components/button';
-import { Input } from '../../components/input';
+import { Button } from '../../components/Button';
+import { Input } from '../../components/Input';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 //import axios from 'axios';
 //import { API_URL } from "../api";
-
-
 
 export default function Login() {
     const navigation = useNavigation();
@@ -173,6 +171,7 @@ export default function Login() {
                                 leftIcon={<Ionicons name="person-outline" size={16} color="#6b7280" />}
                                 style={styles.guestButton}
                                 textStyle={styles.guestButtonText}
+                                onPress={() => navigation.navigate('Main')}
                             />
                         </View>
                     </View>
