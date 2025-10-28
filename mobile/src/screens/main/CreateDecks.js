@@ -4,8 +4,8 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet, StatusBar, Alert 
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { Input } from '../../components/input';
-import { Button } from '../../components/button';
+import { Input } from '../../components/Input';
+import { Button } from '../../components/Button';
 import { TextArea } from '../../components/TextArea';
 import { OptionCard } from '../../components/OptionCard';
 
@@ -224,7 +224,7 @@ export default function CreateDecks() {
         });
         break;
       case 'manual':
-        navigation.navigate('CreateManualFlashcards', {
+        navigation.navigate('CreateManualFlashCards', {
           ...commonData
         });
         break;

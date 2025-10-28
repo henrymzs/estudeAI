@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native'; 
-import { styles } from "./styles.js";
+import { styles } from "./styles";
 
 export function Card({ number, label, color, icon, onPress, numberStyle, style }) {
   const Component = onPress ? TouchableOpacity : View;
