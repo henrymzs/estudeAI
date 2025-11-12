@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, SafeAreaView, Animated } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Button } from "../../components/Button";
+import { Button } from "../../components/button";
 import { useNavigation } from "@react-navigation/native";
 
 export default function Welcome() {

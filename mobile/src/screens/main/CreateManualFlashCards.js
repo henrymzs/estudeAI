@@ -3,8 +3,8 @@ import { useNavigation } from '@react-navigation/native';
 import { Text, View, TouchableOpacity, ScrollView, StyleSheet, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { Input } from '../../components/Input';
-import { Button } from '../../components/Button';
+import { Input } from '../../components/input';
+import { Button } from '../../components/button';
 import { TextArea } from '../../components/TextArea';
 
 export default function CreateManualFlashCards({ route }) {

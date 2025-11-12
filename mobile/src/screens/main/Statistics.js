@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet, StatusBar, Dimensions } from 'react
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import PieChart from 'react-native-pie-chart';
-import { Card } from '../../components/Card';
+import { Card } from '../../components/card';
 
 const { width } = Dimensions.get('window');
 
