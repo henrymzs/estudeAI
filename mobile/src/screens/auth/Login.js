@@ -4,10 +4,8 @@ import { Button } from '../../components/button';
 import { Input } from '../../components/input';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-//import axios from 'axios';
-//import { API_URL } from "../api";
-
-
+import axios from 'axios';
+import { API_URL } from "../../api";
 
 export default function Login() {
     const navigation = useNavigation();
@@ -135,8 +133,8 @@ export default function Login() {
                                 setLoading(true);
                                 try {
                                     const response = await axios.post(`${API_URL}/auth/login`, {
-                                        email,
-                                        password
+                                        email: email,
+                                        senha: password
                                     });
 
                                     const {access_token} = response.data;
@@ -173,6 +171,7 @@ export default function Login() {
                                 leftIcon={<Ionicons name="person-outline" size={16} color="#6b7280" />}
                                 style={styles.guestButton}
                                 textStyle={styles.guestButtonText}
+                                onPress={() => navigation.navigate('Main')}
                             />
                         </View>
                     </View>

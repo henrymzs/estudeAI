@@ -5,9 +5,7 @@ import { Input } from '../../components/input';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-//import { API_URL } from "../api";
-
-
+import { API_URL } from "../../api";
 
 export default function Register() {
     const navigation = useNavigation();
@@ -164,9 +162,9 @@ export default function Register() {
                                     setLoading(true);
                                     try {
                                         const response = await axios.post(`${API_URL}/auth/register`, {
-                                            name,
-                                            email,
-                                            password
+                                            nome: name,
+                                            email: email,
+                                            senha: password
                                         });
                                         console.log("Usuario criado", response.data);
                                         navigation.navigate("Login");

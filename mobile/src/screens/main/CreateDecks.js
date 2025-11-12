@@ -224,7 +224,7 @@ export default function CreateDecks() {
         });
         break;
       case 'manual':
-        navigation.navigate('CreateManualFlashcards', {
+        navigation.navigate('CreateManualFlashCards', {
           ...commonData
         });
         break;
