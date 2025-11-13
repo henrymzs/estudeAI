@@ -1,4 +1,6 @@
-import { View, Text, StyleSheet, SafeAreaView, StatusBar, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
+// Certifique-se de que esta importação está correta se estiver usando expo install react-native-safe-area-context
+import { SafeAreaView } from 'react-native-safe-area-context'; 
 import { Ionicons } from "@expo/vector-icons";
 import { Button } from '../../components/button';
 import { Input } from '../../components/input';
@@ -167,7 +169,8 @@ export default function Register() {
                                             senha: password
                                         });
                                         console.log("Usuario criado", response.data);
-                                        navigation.navigate("Login");
+                                        // CORREÇÃO AQUI: Volta para a tela anterior (Login)
+                                        navigation.goBack(); 
                                     } catch (error) {
                                         console.log("Erro no registro:", error.response?.data || error.message);
                                         setErrors({email: "Erro ao criar conta"});
@@ -179,7 +182,8 @@ export default function Register() {
 
                             <TouchableOpacity
                                 style={styles.createAccountLink}
-                                onPress={() => navigation.navigate('Login')}
+                                // CORREÇÃO AQUI: Volta para a tela anterior (Login)
+                                onPress={() => navigation.goBack()}
                             >
                                 <Text style={styles.createAccountText}>
                                     Já tem conta? <Text style={styles.createAccountLinkText}>Entrar</Text>
@@ -322,4 +326,3 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
 });
-
