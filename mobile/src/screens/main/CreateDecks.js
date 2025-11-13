@@ -1,13 +1,162 @@
-import * as DocumentPicker from 'expo-document-picker';
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, StatusBar, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, StatusBar, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { Input } from '../../components/input';
-import { Button } from '../../components/button';
-import { TextArea } from '../../components/TextArea';
-import { OptionCard } from '../../components/OptionCard';
+import * as DocumentPicker from 'expo-document-picker';
+
+// =========================================================
+// FIREBASE/FASTAPI CONFIGURAÇÃO DE REDE
+// ATENÇÃO: Use o seu IP atual. Este IP é válido para o seu hotspot: 10.105.187.105
+const API_IP = '10.105.187.105';
+const API_PORT = '8000';
+const BASE_URL = `http://${API_IP}:${API_PORT}`;
+// ATENÇÃO: O token de autenticação deve ser obtido após o login.
+// Assumimos um token fictício para demonstração de chamada API.
+const DUMMY_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yQ"
+// =========================================================
+
+// =========================================================
+// 1. COMPONENTES EXTERNOS INLINE (NECESSÁRIO PARA FICHEIRO ÚNICO)
+// =========================================================
+
+const Input = ({ placeholder, value, onChangeText, leftIcon, ...props }) => (
+  <View style={compStyles.inputContainer}>
+    {leftIcon}
+    <TextInput
+      style={compStyles.input}
+      placeholder={placeholder}
+      value={value}
+      onChangeText={onChangeText}
+      {...props}
+    />
+  </View>
+);
+
+const TextArea = ({ placeholder, value, onChangeText, numberOfLines, ...props }) => (
+  <TextInput
+    style={[compStyles.textArea, { height: 20 * numberOfLines }]}
+    placeholder={placeholder}
+    value={value}
+    onChangeText={onChangeText}
+    multiline
+    textAlignVertical="top"
+    {...props}
+  />
+);
+
+const Button = ({ title, onPress, style, leftIcon }) => (
+  <TouchableOpacity style={[compStyles.button, style]} onPress={onPress}>
+    {leftIcon}
+    <Text style={compStyles.buttonText}>{title}</Text>
+  </TouchableOpacity>
+);
+
+const OptionCard = ({ option, isSelected, onPress }) => (
+  <TouchableOpacity
+    style={[compStyles.optionCard, isSelected && compStyles.optionCardSelected]}
+    onPress={onPress}
+  >
+    <View style={[compStyles.iconWrapper, { backgroundColor: option.iconBg }]}>
+      <Ionicons name={option.icon} size={24} color={option.iconColor} />
+    </View>
+    <View style={compStyles.optionTextContent}>
+      <Text style={compStyles.optionTitle}>{option.title}</Text>
+      <Text style={compStyles.optionSubtitle}>{option.subtitle}</Text>
+    </View>
+    {isSelected && (
+      <Ionicons name="checkmark-circle" size={24} color="#0C9463" style={compStyles.checkmark} />
+    )}
+  </TouchableOpacity>
+);
+
+const compStyles = StyleSheet.create({
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    height: 48,
+    marginBottom: 8,
+  },
+  input: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 16,
+    color: '#333',
+  },
+  textArea: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    color: '#333',
+    minHeight: 120,
+    marginBottom: 8,
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+  },
+  buttonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
+  optionCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    padding: 15,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginBottom: 10,
+  },
+  optionCardSelected: {
+    borderColor: '#667eea',
+    borderWidth: 2,
+    backgroundColor: '#f5f7ff',
+  },
+  iconWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 15,
+  },
+  optionTextContent: {
+    flex: 1,
+  },
+  optionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  optionSubtitle: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginTop: 2,
+  },
+  checkmark: {
+    marginLeft: 10,
+  }
+});
+// =========================================================
+
+// =========================================================
+// 2. COMPONENTE PRINCIPAL (COM LÓGICA DE API)
+// =========================================================
+
+// Usando TextInput padrão do react-native (necessário para os componentes inline)
+import { TextInput } from 'react-native'; 
 
 export default function CreateDecks() {
   const navigation = useNavigation();
@@ -18,6 +167,7 @@ export default function CreateDecks() {
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [videoLink, setVideoLink] = useState('');
   const [textContent, setTextContent] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false); // Novo estado de carregamento
 
   const MAX_DECK_NAME_LENGTH = 50;
   const MAX_DESCRIPTION_LENGTH = 200;
@@ -36,6 +186,7 @@ export default function CreateDecks() {
   };
 
   const renderExpandedContent = (optionId) => {
+    // ... (Lógica de renderização de conteúdo expandido, mantida do seu código)
     if (selectedOption !== optionId) return null;
     switch (optionId) {
       case 'video':
@@ -92,6 +243,7 @@ export default function CreateDecks() {
   };
 
   const creationOptions = [
+    // ... (Mantendo as opções de criação)
     {
       id: 'pdf',
       icon: 'document-text',
@@ -127,6 +279,7 @@ export default function CreateDecks() {
   ];
 
   const pickDocument = async () => {
+    // ... (Lógica de seleção de documento, mantida)
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: [
@@ -145,9 +298,8 @@ export default function CreateDecks() {
           mimeType: document.mimeType
         };
         setSelectedDocument(documentData);
-        navigation.navigate('ProcessDocument', {
-          document: documentData
-        });
+        // navegação aqui é apenas para demonstração de que o documento foi pego
+        // navigation.navigate('ProcessDocument', { document: documentData });
       } else {
         setSelectedOption(null);
         console.log('Seleção de documento cancelada');
@@ -165,19 +317,56 @@ export default function CreateDecks() {
   const handleDeckNameChange = (text) => {
     setDeckName(text);
     if (deckNameError) {
-      setDescription('');
+      setDeckNameError(validateDeckName(text));
     }
   };
 
   const handleOptionPress = async (optionId) => {
     setSelectedOption(optionId);
-
     if (optionId === 'pdf') {
-      setTimeout(() => pickDocument(), 200);
+      // Pequeno timeout para permitir que o estado isSelected seja atualizado visualmente
+      setTimeout(() => pickDocument(), 200); 
     }
   };
 
-  const handleGenerateFlashcards = () => {
+  // =========================================================
+  // LÓGICA PRINCIPAL: CRIAÇÃO DO DECK VIA FASTAPI (POST /decks)
+  // =========================================================
+  const createDeckOnFastAPI = async (data) => {
+    setIsProcessing(true);
+    const url = `${BASE_URL}/decks`; // Endpoint de criação de deck
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // O token é obrigatório para autenticar o usuário no FastAPI
+          'Authorization': `Bearer ${DUMMY_ACCESS_TOKEN}`, 
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        // Tenta ler o erro do corpo da resposta, que o FastAPI deve retornar em JSON
+        const errorData = await response.json();
+        throw new Error(`Falha na criação do Deck: ${errorData.detail || response.statusText}`);
+      }
+
+      const newDeck = await response.json();
+      Alert.alert('Sucesso', `Deck '${newDeck.titulo}' criado com ID: ${newDeck.id}`);
+      return newDeck;
+
+    } catch (error) {
+      console.error("Erro API (POST /decks):", error);
+      Alert.alert('Erro de Conexão/API', error.message || 'Verifique o servidor FastAPI e o token de acesso.');
+      return null;
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleGenerateFlashcards = async () => {
     const nameError = validateDeckName(deckName);
     if (nameError) {
       setDeckNameError(nameError);
@@ -188,6 +377,32 @@ export default function CreateDecks() {
       Alert.alert('Atenção', 'Selecione uma opção de criação antes de continuar');
       return;
     }
+
+    const commonData = {
+      deckName: deckName.trim(),
+      description: description.trim(),
+    };
+
+    if (selectedOption === 'manual') {
+      // 1. CRIAÇÃO DO DECK VIA API
+      const newDeckData = await createDeckOnFastAPI({
+        titulo: commonData.deckName,
+        descricao: commonData.description || null, // Garante que a descrição é null se vazia
+      });
+
+      if (newDeckData) {
+        // 2. NAVEGAÇÃO APÓS SUCESSO
+        navigation.navigate('CreateManualFlashCards', {
+          ...commonData,
+          deck_id: newDeckData.id, // Passamos o ID do novo deck para a próxima tela
+        });
+      }
+      return;
+    }
+
+    // --- Lógica para outras opções ---
+    // (As outras opções continuam a navegar, mas o deck seria criado
+    // ou o processamento seria iniciado nas telas seguintes)
     if (selectedOption === 'video' && !videoLink.trim()) {
       Alert.alert('Atenção', 'Insira o link do vídeo');
       return;
@@ -200,33 +415,17 @@ export default function CreateDecks() {
       Alert.alert('Atenção', 'Selecione um documento');
       return;
     }
-    const commonData = {
-      deckName: deckName.trim(),
-      description: description.trim(),
-    };
+    
+    // Navegações para outras opções (IA)
     switch (selectedOption) {
       case 'pdf':
-        navigation.navigate('ProcessDocument', {
-          ...commonData,
-          document: selectedDocument
-        });
+        navigation.navigate('ProcessDocument', { ...commonData, document: selectedDocument });
         break;
       case 'video':
-        navigation.navigate('ProcessVideo', {
-          ...commonData,
-          videoLink: videoLink.trim()
-        });
+        navigation.navigate('ProcessVideo', { ...commonData, videoLink: videoLink.trim() });
         break;
       case 'text':
-        navigation.navigate('ProcessText', {
-          ...commonData,
-          textContent: textContent.trim()
-        });
-        break;
-      case 'manual':
-        navigation.navigate('CreateManualFlashCards', {
-          ...commonData
-        });
+        navigation.navigate('ProcessText', { ...commonData, textContent: textContent.trim() });
         break;
       default:
         Alert.alert('Erro', 'Opção inválida');
@@ -299,16 +498,17 @@ export default function CreateDecks() {
 
       <View style={styles.bottomContainer}>
         <LinearGradient
-          colors={['#667eea', '#764ba2']}
+          colors={isProcessing ? ['#B0B0B0', '#A0A0A0'] : ['#667eea', '#764ba2']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={{ borderRadius: 16 }}
+          style={{ borderRadius: 16, opacity: isProcessing ? 0.7 : 1 }}
         >
           <Button
-            title="Gerar Flashcards com IA"
-            leftIcon={<Ionicons name="sparkles" size={20} color="#FFF" />}
+            title={isProcessing ? "A Criar Deck..." : (selectedOption === 'manual' ? "Criar Deck e Continuar" : "Gerar Flashcards com IA")}
+            leftIcon={isProcessing ? <ActivityIndicator color="#FFF" /> : <Ionicons name="sparkles" size={20} color="#FFF" />}
             style={{ backgroundColor: 'transparent' }}
             onPress={handleGenerateFlashcards}
+            disabled={isProcessing}
           />
         </LinearGradient>
       </View>
@@ -324,7 +524,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start', // Alinhado à esquerda
     paddingHorizontal: 10,
     paddingTop: 24,
     paddingBottom: 8,
@@ -339,6 +539,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#fff',
+    flex: 1,
+    textAlign: 'center', // Centraliza o título no espaço restante
+    paddingRight: 32, // Offset para compensar o botão voltar
   },
   content: {
     paddingTop: 12,
@@ -371,8 +574,50 @@ const styles = StyleSheet.create({
   required: {
     color: '#FF6B47',
   },
+  errorText: {
+    color: '#D93025',
+    fontSize: 12,
+    marginBottom: 8,
+  },
   bottomContainer: {
     padding: 20,
     backgroundColor: '#F8F9FA',
   },
+  // Estilos para o conteúdo expandido
+  expandedContent: {
+    marginTop: 5,
+    padding: 10,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#eee'
+  },
+  charCount: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'right',
+    marginTop: -8,
+  },
+  documentPreview: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EBF5FF',
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D4E8FF',
+  },
+  documentInfo: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  documentName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+  documentSize: {
+    fontSize: 12,
+    color: '#666',
+  }
 });

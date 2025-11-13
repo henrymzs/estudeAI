@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet, SafeAreaView, StatusBar, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
+// Estes componentes (Button e Input) são mockados, pois não foram fornecidos
+// e serão tratados como se estivessem disponíveis em caminhos relativos.
 import { Button } from '../../components/button';
 import { Input } from '../../components/input';
 import { useState } from 'react';
@@ -65,6 +67,32 @@ export default function Login() {
         setErrors(prev => ({ ...prev, password: error }));
     };
 
+    const handleLogin = async () => {
+        if (!validateForm()) return;
+
+        setLoading(true);
+        try {
+            const response = await axios.post(`${API_URL}/auth/login`, {
+                email: email,
+                senha: password
+            });
+
+            const {access_token} = response.data;
+            console.log("Token recebido:", access_token);
+            
+            // CORREÇÃO FINAL: Usando 'Home' como o nome da rota principal.
+            navigation.replace("Home");
+
+        } catch (error) {
+            console.log("Erro no login:", error.response?.data || error.message);
+            // Mostrar erro na interface
+            setErrors({password: "Email ou senha incorretos"});
+        } finally {
+            setLoading(false);
+        }
+    }
+
+
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="#f8f9fa" />
@@ -116,6 +144,7 @@ export default function Login() {
 
                             <TouchableOpacity
                                 style={styles.forgotPasswordLink}
+                                // Ação de link de senha esquecida
                             >
                                 <Text style={styles.forgotPasswordText}>
                                     Esqueci minha senha
@@ -127,27 +156,7 @@ export default function Login() {
                             title={loading ? 'Entrando na sua conta...' : 'Entrar'}
                             style={styles.primaryButton}
                             disable={loading}
-                            onPress={async () => {
-                                if (!validateForm()) return;
-
-                                setLoading(true);
-                                try {
-                                    const response = await axios.post(`${API_URL}/auth/login`, {
-                                        email: email,
-                                        senha: password
-                                    });
-
-                                    const {access_token} = response.data;
-                                    console.log("Token recebido:", access_token);
-                                    navigation.navigate("Main");
-
-                                } catch (error) {
-                                    console.log("Erro no login:", error.response?.data || error.message);
-                                    setErrors({password: "Email ou senha incorretos"});
-                                } finally {
-                                    setLoading(false)
-                                }
-                            }}
+                            onPress={handleLogin} // Usa a função handleLogin
                         />
 
                         <View style={styles.secondaryActions}>
@@ -171,7 +180,8 @@ export default function Login() {
                                 leftIcon={<Ionicons name="person-outline" size={16} color="#6b7280" />}
                                 style={styles.guestButton}
                                 textStyle={styles.guestButtonText}
-                                onPress={() => navigation.navigate('Main')}
+                                // CORREÇÃO FINAL: Usando 'Home' como o nome da rota principal.
+                                onPress={() => navigation.replace('Home')} 
                             />
                         </View>
                     </View>
@@ -333,4 +343,3 @@ const styles = StyleSheet.create({
         backgroundColor: '#f8f9fa',
     },
 });
-

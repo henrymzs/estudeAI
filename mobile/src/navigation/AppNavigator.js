@@ -12,7 +12,7 @@ export default function AppNavigator() {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name='Auth' component={AuthNavigator} />
-            <Stack.Screen name='Main' component={BottomTabs} />
+            <Stack.Screen name='Home' component={BottomTabs} />
             <Stack.Screen name='CreateDeck' component={CreateDecks} />
             <Stack.Screen name='CreateManualFlashCards' component={CreateManualFlashCards} />
         </Stack.Navigator>    

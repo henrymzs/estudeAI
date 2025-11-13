@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth
+from app.routers import auth, deck, flashcard
 
 app = FastAPI()
 
@@ -8,6 +8,7 @@ origins = [
     "http://localhost:19000",
     "http://localhost:8081",
     "exp://127.0.0.1:19000",
+    "http://10.105.187.105:8000",
     # adicione o origin do seu app expo / mobile
 ]
 
@@ -20,3 +21,5 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(deck.router)
+app.include_router(flashcard.router)
