@@ -9,7 +9,7 @@ import axios from "axios";
  *   - iOS simulator: "http://127.0.0.1:8000" geralmente funciona
  */
 // mobile/src/api.js
-export const API_URL = "http://192.168.1.59:8000";
+export const API_URL = "http://10.105.187.105:8000";
 
 // instância axios pronta para uso (opcional — você pode continuar usando axios diretamente)
 export const api = axios.create({
