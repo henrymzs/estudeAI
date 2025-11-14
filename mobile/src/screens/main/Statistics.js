@@ -1,11 +1,9 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, StatusBar, Dimensions } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import PieChart from 'react-native-pie-chart';
-import { Card } from '../../components/card';
-
-const { width } = Dimensions.get('window');
+import { Card } from '../../components/Card';
 
 export default function Statistics() {
     // dados mockados
