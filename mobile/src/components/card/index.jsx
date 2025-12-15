@@ -12,10 +12,17 @@ export function Card({ number, label, color, icon, onPress, numberStyle, style }
       activeOpacity={onPress ? 0.7 : 1}
     >
       {icon && (
-        <View testID='card-icon' style={[styles.statIcon, { backgroundColor: color }]}> 
-          <Text style={styles.iconText}>{icon}</Text>
-        </View>
-      )}
+    <View
+        testID='card-icon'
+        style={[styles.statIcon, { backgroundColor: color }]}
+    >
+        {typeof icon === "string" ? (
+            <Text style={styles.iconText}>{icon}</Text>
+        ) : (
+            icon  
+        )}
+    </View>
+)}
       <Text style={[ styles.statNumber, numberStyle ]}>{number}</Text>
       <Text style={styles.statLabel}>{label}</Text>
     </Component>

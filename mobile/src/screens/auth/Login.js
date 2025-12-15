@@ -1,13 +1,13 @@
 import { View, Text, StyleSheet, SafeAreaView, StatusBar, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
-// Estes componentes (Button e Input) são mockados, pois não foram fornecidos
-// e serão tratados como se estivessem disponíveis em caminhos relativos.
-import { Button } from '../../components/button';
-import { Input } from '../../components/input';
+import { Button } from '../../components/Button';
+import { Input } from '../../components/Input';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { API_URL } from "../../api";
+// IMPORTAÇÃO CORRIGIDA: Importa a função setToken do serviço authStorage
+import { setToken } from '../../services/authStorage'; 
 
 export default function Login() {
     const navigation = useNavigation();
@@ -80,7 +80,11 @@ export default function Login() {
             const {access_token} = response.data;
             console.log("Token recebido:", access_token);
             
-            // CORREÇÃO FINAL: Usando 'Home' como o nome da rota principal.
+            // CORREÇÃO: Usa a função setToken importada de authStorage.js
+            // Remove o bloco try/catch interno e a referência a AsyncStorage
+            await setToken(access_token);
+            
+            // Navega para a tela principal
             navigation.replace("Home");
 
         } catch (error) {

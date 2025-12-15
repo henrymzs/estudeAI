@@ -1,31 +1,33 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const TOKEN_KEY = 'user_token';
+const TOKEN_KEY = '@MyApp:userToken';
 
-// Salva o token após o login
-export const setToken = async (token) => {
+export async function setToken(token) {
     try {
         await AsyncStorage.setItem(TOKEN_KEY, token);
-    } catch (e) {
-        console.error("Erro ao salvar token:", e);
+        console.log('Token salvo com sucesso.');
+    } catch (error) {
+        console.error('Erro ao salvar token:', error);
     }
-};
+}
 
-// Obtém o token para usar em requisições
-export const getToken = async () => {
+export async function getToken() {
     try {
-        return await AsyncStorage.getItem(TOKEN_KEY);
-    } catch (e) {
-        console.error("Erro ao ler token:", e);
+        const token = await AsyncStorage.getItem(TOKEN_KEY);
+        return token;
+    } catch (error) {
+        console.error('Erro ao buscar token:', error);
         return null;
     }
-};
+}
 
-// Remove o token no logout
-export const removeToken = async () => {
+export async function removeToken() {
     try {
         await AsyncStorage.removeItem(TOKEN_KEY);
-    } catch (e) {
-        console.error("Erro ao remover token:", e);
+        console.log('Token removido com sucesso.');
+    } catch (error) {
+        console.error('Erro ao remover token:', error);
     }
-};
+}
+
+export default { getToken, setToken, removeToken };

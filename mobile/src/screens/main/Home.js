@@ -3,24 +3,25 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import { getToken } from '../../services/authStorage'; // Assumindo que este caminho está correto
+// 1. IMPORTAÇÃO CHAVE: Usamos a instância 'api' com o Interceptor configurado
+import api from '../../api'; 
+// Se precisar do logout, o AuthContext é o local ideal, mas por agora focamos na API
 
-// URL BASE DA API (Ajuste se necessário)
-const API_BASE_URL = 'http://10.105.187.105:8000'; // OU seu IP local, ex: 'http://192.168.1.5:8000'
+// URL BASE DA API (Esta constante é agora redundante, pois a URL base está no api.js)
+// const API_BASE_URL = 'http://10.105.187.105:8000'; 
 
 // Função auxiliar para formatar a data (ajusta o datetime do backend)
 const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
+    // Ex: "25 Nov"
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '');
 };
 
 export default function Home() {
     const navigation = useNavigation();
-    const isFocused = useIsFocused(); // Hook para recarregar quando a tela foca
+    const isFocused = useIsFocused();
     
-    // ALTERAÇÃO 1: Estado inicial do nome alterado para string vazia
     const [userName, setUserName] = useState('');
     const [userDecks, setUserDecks] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -30,50 +31,52 @@ export default function Home() {
     const fetchUserData = useCallback(async () => {
         setLoading(true);
         setError(null);
+        
         try {
-            const token = await getToken();
-            if (!token) {
-                // Se não houver token, navega para o login
-                return;
-            }
-
+            // *** MUDANÇA 1: A instância 'api' se encarrega da autenticação ***
+            
             // --- 1. Busca os Decks do Usuário ---
-            const decksResponse = await axios.get(`${API_BASE_URL}/decks/`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            // Usamos a URL relativa, o 'api' cuidará do prefixo base e do token
+            const decksResponse = await api.get('/decks/'); 
 
             const decksData = decksResponse.data;
             setUserDecks(decksData);
 
             // --- 2. Busca os dados do usuário (Nome) ---
-            const userResponse = await axios.get(`${API_BASE_URL}/users/me`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            // Usamos a URL relativa
+            const userResponse = await api.get('/auth/users/me');
             
-            // DIAGNÓSTICO: Loga a resposta do backend para verificarmos qual campo tem o nome
             console.log("[DEBUG] Resposta do /users/me:", userResponse.data);
 
             const userData = userResponse.data;
 
-            // ALTERAÇÃO 2: Tenta extrair o nome de campos comuns (nome, name, username)
+            // Tenta extrair o nome de campos comuns (nome, name, username)
             const fetchedUserName = userData?.nome || userData?.name || userData?.username || 'Usuário Ativo';
             setUserName(fetchedUserName);
 
 
         } catch (err) {
             console.error("Erro ao buscar dados do usuário:", err);
-            setError("Falha ao carregar dados. Verifique a conexão com o servidor ou o token de autenticação.");
             
-            // Força o logout se o erro for 401 (token inválido/expirado)
-            if (err.response && err.response.status === 401) {
-                 // É importante implementar o removeToken para limpar o storage.
-                 // await removeToken(); 
-                 navigation.replace('Login');
+            // IMPORTANTE: Não navegamos para 'Login' aqui.
+            // O interceptor do `api` já detecta 401, remove o token e emite logout.
+            // O AuthProvider (ou sua lógica de rotas) deve reagir a isso e trocar para o AuthStack.
+            // Aqui apenas exibimos a mensagem de erro apropriada ao usuário.
+            if (err.response) {
+                if (err.response.status === 401) {
+                    setError("Sessão expirada. Por favor, faça login novamente.");
+                    // NÃO execute navigation.reset/navigate/replace('Login') aqui
+                    // para evitar warnings quando a tela Login pertence a outro navigator.
+                    return;
+                }
+                setError(`Erro do Servidor: ${err.response.status}.`);
+            } else if (err.request) {
+                // Erro de rede (servidor offline ou inacessível)
+                 setError("Falha na conexão. Verifique o endereço da API e sua rede.");
+            } else {
+                 setError("Ocorreu um erro inesperado.");
             }
+            
         } finally {
             setLoading(false);
         }
@@ -82,17 +85,17 @@ export default function Home() {
     // Efeito para carregar os dados quando a tela for focada
     useEffect(() => {
         if (isFocused) {
+            // Assumimos que o Interceptor fará o trabalho de verificar o token
             fetchUserData();
         }
     }, [isFocused, fetchUserData]);
 
 
     // Dados derivados:
-    // Calcula o total de cards contando o array 'flashcards' de cada deck
     const totalDecks = userDecks.length;
-    const totalCards = userDecks.reduce((sum, deck) => sum + (deck.flashcards ? deck.flashcards.length : 0), 0);
+    // Garante que 'flashcards' é um array antes de calcular o length
+    const totalCards = userDecks.reduce((sum, deck) => sum + (Array.isArray(deck.flashcards) ? deck.flashcards.length : 0), 0);
     
-    // Caso o nome ainda seja uma string vazia enquanto carrega:
     const displayUserName = userName || '...';
 
 
@@ -164,6 +167,9 @@ export default function Home() {
                         <View style={styles.emptyState}>
                             <Ionicons name="folder-open-outline" size={40} color="#718096" />
                             <Text style={styles.emptyText}>Você ainda não tem decks. Crie um agora!</Text>
+                            <TouchableOpacity style={{ marginTop: 15 }} onPress={() => navigation.navigate('CreateDeck')}>
+                                 <Text style={{ color: '#667eea', fontWeight: 'bold' }}>Começar a Criar</Text>
+                            </TouchableOpacity>
                         </View>
                     ) : (
                         userDecks.map((deck) => (
@@ -177,8 +183,8 @@ export default function Home() {
                                         <Text style={styles.deckTitle}>{deck.titulo}</Text>
                                         <View style={styles.deckMetaContainer}>
                                             <View style={styles.cardCount}>
-                                                {/* Conta o tamanho do array flashcards */}
-                                                <Text style={styles.cardCountText}>{deck.flashcards ? deck.flashcards.length : 0} cards</Text>
+                                                {/* Adicionando verificação de array antes de usar .length */}
+                                                <Text style={styles.cardCountText}>{Array.isArray(deck.flashcards) ? deck.flashcards.length : 0} cards</Text>
                                             </View>
                                             {/* Data de criação real do banco de dados */}
                                             <Text style={styles.deckDate}> • {formatDate(deck.criado_em)}</Text>
@@ -221,20 +227,20 @@ export default function Home() {
 
             </ScrollView>
 
-            <TouchableOpacity
-                activeOpacity={0.8}
-                // Rota 'CreateDeck' deve ser o nome correto da sua tela CreateDecks.js
-                onPress={() => navigation.navigate('CreateDeck')} 
+<LinearGradient
+                colors={['#667eea', '#764ba2']}
+                style={styles.fab}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
             >
-                <LinearGradient
-                    colors={['#667eea', '#764ba2']} 
-                    style={styles.fab}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }} 
+                <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => navigation.navigate('CreateDeck')}
+                    style={styles.fabTouchable} // ← Novo style
                 >
                     <Ionicons name="add" size={24} color="#fff" />
-                </LinearGradient>
-            </TouchableOpacity>
+                </TouchableOpacity>
+            </LinearGradient>
         </View>
     );
 }
