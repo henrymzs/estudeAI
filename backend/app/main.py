@@ -1,15 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, deck, flashcard
+from app.routers import auth, deck, flashcard, progresso, usuarios
 
 app = FastAPI()
 
 origins = [
     "http://localhost:19000",
     "http://localhost:8081",
-    "exp://127.0.0.1:19000",
-    "http://10.105.187.105:8000",
-    # adicione o origin do seu app expo / mobile
+    "http://10.105.187.105:8081",
+    "exp://10.105.187.105:8081",
+    # se o Expo mudar o IP, só adicionar aqui
 ]
 
 app.add_middleware(
@@ -20,6 +20,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 app.include_router(auth.router)
 app.include_router(deck.router)
 app.include_router(flashcard.router)
+app.include_router(usuarios.router)
+app.include_router(progresso.router)
+

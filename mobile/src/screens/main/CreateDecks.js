@@ -4,17 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
+// Usando TextInput padrão do react-native
+import { TextInput } from 'react-native'; 
 
-// =========================================================
-// FIREBASE/FASTAPI CONFIGURAÇÃO DE REDE
-// ATENÇÃO: Use o seu IP atual. Este IP é válido para o seu hotspot: 10.105.187.105
-const API_IP = '10.105.187.105';
-const API_PORT = '8000';
-const BASE_URL = `http://${API_IP}:${API_PORT}`;
-// ATENÇÃO: O token de autenticação deve ser obtido após o login.
-// Assumimos um token fictício para demonstração de chamada API.
-const DUMMY_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yQ"
-// =========================================================
+// IMPORTE A API CONFIGURADA (Isso resolve o erro 401)
+import api from '../../api';
 
 // =========================================================
 // 1. COMPONENTES EXTERNOS INLINE (NECESSÁRIO PARA FICHEIRO ÚNICO)
@@ -155,9 +149,6 @@ const compStyles = StyleSheet.create({
 // 2. COMPONENTE PRINCIPAL (COM LÓGICA DE API)
 // =========================================================
 
-// Usando TextInput padrão do react-native (necessário para os componentes inline)
-import { TextInput } from 'react-native'; 
-
 export default function CreateDecks() {
   const navigation = useNavigation();
   const [deckName, setDeckName] = useState('');
@@ -167,7 +158,7 @@ export default function CreateDecks() {
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [videoLink, setVideoLink] = useState('');
   const [textContent, setTextContent] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false); // Novo estado de carregamento
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const MAX_DECK_NAME_LENGTH = 50;
   const MAX_DESCRIPTION_LENGTH = 200;
@@ -186,7 +177,6 @@ export default function CreateDecks() {
   };
 
   const renderExpandedContent = (optionId) => {
-    // ... (Lógica de renderização de conteúdo expandido, mantida do seu código)
     if (selectedOption !== optionId) return null;
     switch (optionId) {
       case 'video':
@@ -243,7 +233,6 @@ export default function CreateDecks() {
   };
 
   const creationOptions = [
-    // ... (Mantendo as opções de criação)
     {
       id: 'pdf',
       icon: 'document-text',
@@ -279,7 +268,6 @@ export default function CreateDecks() {
   ];
 
   const pickDocument = async () => {
-    // ... (Lógica de seleção de documento, mantida)
     try {
       const result = await DocumentPicker.getDocumentAsync({
         type: [
@@ -298,8 +286,6 @@ export default function CreateDecks() {
           mimeType: document.mimeType
         };
         setSelectedDocument(documentData);
-        // navegação aqui é apenas para demonstração de que o documento foi pego
-        // navigation.navigate('ProcessDocument', { document: documentData });
       } else {
         setSelectedOption(null);
         console.log('Seleção de documento cancelada');
@@ -324,42 +310,34 @@ export default function CreateDecks() {
   const handleOptionPress = async (optionId) => {
     setSelectedOption(optionId);
     if (optionId === 'pdf') {
-      // Pequeno timeout para permitir que o estado isSelected seja atualizado visualmente
       setTimeout(() => pickDocument(), 200); 
     }
   };
 
   // =========================================================
-  // LÓGICA PRINCIPAL: CRIAÇÃO DO DECK VIA FASTAPI (POST /decks)
+  // LÓGICA PRINCIPAL: CRIAÇÃO DO DECK VIA FASTAPI (CORRIGIDA)
   // =========================================================
   const createDeckOnFastAPI = async (data) => {
     setIsProcessing(true);
-    const url = `${BASE_URL}/decks`; // Endpoint de criação de deck
-
+    
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // O token é obrigatório para autenticar o usuário no FastAPI
-          'Authorization': `Bearer ${DUMMY_ACCESS_TOKEN}`, 
-        },
-        body: JSON.stringify(data),
-      });
+      // Usamos a instância 'api' configurada (com interceptor de token).
+      // NÃO passamos headers de Authorization manualmente aqui.
+      const response = await api.post('/decks/', data);
 
-      if (!response.ok) {
-        // Tenta ler o erro do corpo da resposta, que o FastAPI deve retornar em JSON
-        const errorData = await response.json();
-        throw new Error(`Falha na criação do Deck: ${errorData.detail || response.statusText}`);
-      }
-
-      const newDeck = await response.json();
+      // Axios retorna o JSON parseado em .data
+      const newDeck = response.data;
+      
       Alert.alert('Sucesso', `Deck '${newDeck.titulo}' criado com ID: ${newDeck.id}`);
       return newDeck;
 
     } catch (error) {
-      console.error("Erro API (POST /decks):", error);
-      Alert.alert('Erro de Conexão/API', error.message || 'Verifique o servidor FastAPI e o token de acesso.');
+      console.error("Erro API (POST /decks/):", error);
+      
+      // Captura segura da mensagem de erro do backend (FastAPI geralmente envia .detail)
+      const errorMessage = error.response?.data?.detail || error.message || 'Erro desconhecido ao contatar o servidor.';
+      
+      Alert.alert('Erro de Conexão/API', errorMessage);
       return null;
     } finally {
       setIsProcessing(false);
@@ -387,22 +365,20 @@ export default function CreateDecks() {
       // 1. CRIAÇÃO DO DECK VIA API
       const newDeckData = await createDeckOnFastAPI({
         titulo: commonData.deckName,
-        descricao: commonData.description || null, // Garante que a descrição é null se vazia
+        descricao: commonData.description || null,
       });
 
       if (newDeckData) {
         // 2. NAVEGAÇÃO APÓS SUCESSO
         navigation.navigate('CreateManualFlashCards', {
           ...commonData,
-          deck_id: newDeckData.id, // Passamos o ID do novo deck para a próxima tela
+          deck_id: newDeckData.id,
         });
       }
       return;
     }
 
     // --- Lógica para outras opções ---
-    // (As outras opções continuam a navegar, mas o deck seria criado
-    // ou o processamento seria iniciado nas telas seguintes)
     if (selectedOption === 'video' && !videoLink.trim()) {
       Alert.alert('Atenção', 'Insira o link do vídeo');
       return;
@@ -416,7 +392,6 @@ export default function CreateDecks() {
       return;
     }
     
-    // Navegações para outras opções (IA)
     switch (selectedOption) {
       case 'pdf':
         navigation.navigate('ProcessDocument', { ...commonData, document: selectedDocument });

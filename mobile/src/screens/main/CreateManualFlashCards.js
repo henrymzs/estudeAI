@@ -1,26 +1,38 @@
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Text, View, TouchableOpacity, ScrollView, StyleSheet, StatusBar } from 'react-native';
+import { Text, View, TouchableOpacity, ScrollView, StyleSheet, StatusBar, Alert, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { Input } from '../../components/input';
 import { Button } from '../../components/button';
 import { TextArea } from '../../components/TextArea';
+import api from '../../api'; // Importação do cliente API para autenticação
 
 export default function CreateManualFlashCards({ route }) {
     const navigation = useNavigation();
 
-    const { deckName, description } = route.params || {};
-    // Verifica com console.log se as informações do card feita na tela anterior chega nesta tela com prop route
-    console.log(deckName);
-    console.log(description);
+    // 1. Extraindo deck_id, deckName e description dos parâmetros de rota
+    const { deckName, description, deck_id } = route.params || {};
+
+    // Verifica se o deck_id é válido antes de continuar
+    if (!deck_id) {
+        Alert.alert("Erro", "ID do Deck não encontrado. Não é possível criar flashcards sem um Deck.");
+        navigation.goBack();
+        return null;
+    }
+    
+    // Verificações de console.log
+    console.log("Deck Name:", deckName);
+    console.log("Description:", description);
+    console.log("Deck ID:", deck_id); // O ID do deck criado na tela anterior
 
     const [flashcards, setFlashcards] = useState([
         { id: 1, front: '', back: '' }
     ]);
+    const [isSaving, setIsSaving] = useState(false); // Novo estado de carregamento
 
     const addFlashcard = () => {
-        const newId = flashcards.length + 1;
+        const newId = flashcards.length > 0 ? flashcards[flashcards.length - 1].id + 1 : 1;
         setFlashcards([...flashcards, { id: newId, front: '', back: '' }]);
     };
 
@@ -38,15 +50,49 @@ export default function CreateManualFlashCards({ route }) {
         }
     };
 
-    const handleSave = () => {
+    // 2. Lógica de Salvar com API
+    const handleSave = async () => {
         const filledCards = flashcards.filter(
             (card) => card.front.trim() && card.back.trim()
         );
+        
         if (filledCards.length === 0) {
-            alert('Por favor, preencha pelo menos um flashcard completo');
+            Alert.alert('Atenção', 'Por favor, preencha pelo menos um flashcard completo.');
             return;
         }
-        console.log('Salvar flashcards:', { deckName, flashcards: filledCards });
+
+        setIsSaving(true);
+        console.log(`Tentando salvar ${filledCards.length} flashcard(s) no Deck ID: ${deck_id}`);
+
+        try {
+            // Criar um array de promessas para salvar todos os flashcards
+            const savePromises = filledCards.map(card => 
+                api.post('/flashcards/', {
+                    deck_id: deck_id, // MANDATÓRIO: Chave estrangeira para o deck
+                    pergunta: card.front.trim(),
+                    resposta: card.back.trim(),
+                })
+            );
+
+            // Executar todas as promessas em paralelo
+            await Promise.all(savePromises);
+
+            Alert.alert(
+                'Sucesso', 
+                `${filledCards.length} flashcard(s) salvo(s) com sucesso no deck '${deckName}'.`
+            );
+            
+            // Navegar para a tela principal (ou lista de decks) após salvar
+            navigation.popToTop(); 
+            
+        } catch (error) {
+            console.error("Erro ao salvar flashcards:", error);
+            // Tratamento de erro aprimorado
+            const errorMessage = error.response?.data?.detail || error.message || 'Erro desconhecido ao salvar os cards. Verifique a conexão com o backend.';
+            Alert.alert('Erro ao Salvar', `Não foi possível salvar os flashcards: ${errorMessage}`);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     // Variável de texto informativo utilizando quebra de linha seguindo UI design
@@ -113,7 +159,6 @@ export default function CreateManualFlashCards({ route }) {
                             placeholder="Ex: Processo pelo qual as plantas convertem luz solar em energia química..."
                             value={card.back}
                             onChangeText={(text) => updateFlashcard(card.id, 'back', text)}
-
                         />
                     </View>
                 ))}
@@ -130,16 +175,17 @@ export default function CreateManualFlashCards({ route }) {
 
             <View style={styles.bottomContainer}>
                 <LinearGradient
-                    colors={['#667eea', '#764ba2']}
+                    colors={isSaving ? ['#B0B0B0', '#A0A0A0'] : ['#667eea', '#764ba2']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={styles.gradientButton}
                 >
                     <Button
-                        title={`Salvar ${flashcards.length} Flashcard${flashcards.length > 1 ? 's' : ''}`}
-                        leftIcon={<Ionicons name="save-outline" size={20} color="#FFF" />}
+                        title={isSaving ? "Salvando..." : `Salvar ${flashcards.length} Flashcard${flashcards.length > 1 ? 's' : ''}`}
+                        leftIcon={isSaving ? <ActivityIndicator color="#FFF" /> : <Ionicons name="save-outline" size={20} color="#FFF" />}
                         onPress={handleSave}
                         style={{ backgroundColor: 'transparent' }}
+                        disabled={isSaving}
                     />
                 </LinearGradient>
 
