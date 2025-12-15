@@ -227,20 +227,20 @@ export default function Home() {
 
             </ScrollView>
 
-            <TouchableOpacity
-                activeOpacity={0.8}
-                // Rota 'CreateDeck' deve ser o nome correto da sua tela CreateDecks.js
-                onPress={() => navigation.navigate('CreateDeck')} 
+<LinearGradient
+                colors={['#667eea', '#764ba2']}
+                style={styles.fab}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
             >
-                <LinearGradient
-                    colors={['#667eea', '#764ba2']} 
-                    style={styles.fab}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }} 
+                <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => navigation.navigate('CreateDeck')}
+                    style={styles.fabTouchable} // ← Novo style
                 >
                     <Ionicons name="add" size={24} color="#fff" />
-                </LinearGradient>
-            </TouchableOpacity>
+                </TouchableOpacity>
+            </LinearGradient>
         </View>
     );
 }

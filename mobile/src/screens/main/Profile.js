@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, StatusBar, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+<<<<<<< HEAD
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import axios from 'axios';
 import { getToken, removeToken } from '../../services/authStorage'; // Assumindo que você implementou removeToken
@@ -19,6 +20,9 @@ const Card = ({ number, label, style, numberStyle }) => (
     </View>
 );
 */
+=======
+import { Card } from '../../components/Card';
+>>>>>>> 88dd7657b932da426b5656b1ef71cfe9660122bb
 
 export default function Profile() {
     const navigation = useNavigation();

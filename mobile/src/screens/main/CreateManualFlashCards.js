@@ -3,8 +3,8 @@ import { useNavigation } from '@react-navigation/native';
 import { Text, View, TouchableOpacity, ScrollView, StyleSheet, StatusBar, Alert, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { Input } from '../../components/input';
-import { Button } from '../../components/button';
+import { Input } from '../../components/Input';
+import { Button } from '../../components/Button';
 import { TextArea } from '../../components/TextArea';
 import api from '../../api'; // Importação do cliente API para autenticação
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, StyleSheet, StatusBar, Dimensions, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,6 +10,14 @@ import PieChart from 'react-native-pie-chart'; // Assumindo que este componente 
 import { Card } from '../../components/card'; // Assumindo que o componente Card está disponível
 
 const { width } = Dimensions.get('window');
+=======
+import React from 'react';
+import { View, Text, ScrollView, StyleSheet, StatusBar } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import PieChart from 'react-native-pie-chart';
+import { Card } from '../../components/Card';
+>>>>>>> 88dd7657b932da426b5656b1ef71cfe9660122bb
 
 // URL BASE DA API (Ajuste se necessário)
 const API_BASE_URL = 'http://10.175.28.105:8000'; 

@@ -1,9 +1,7 @@
 import { View, Text, StyleSheet, SafeAreaView, StatusBar, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
-// Estes componentes (Button e Input) são mockados, pois não foram fornecidos
-// e serão tratados como se estivessem disponíveis em caminhos relativos.
-import { Button } from '../../components/button';
-import { Input } from '../../components/input';
+import { Button } from '../../components/Button';
+import { Input } from '../../components/Input';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';

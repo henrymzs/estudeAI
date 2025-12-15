@@ -2,8 +2,8 @@ import { View, Text, StyleSheet, StatusBar, ScrollView, KeyboardAvoidingView, Pl
 // Certifique-se de que esta importação está correta se estiver usando expo install react-native-safe-area-context
 import { SafeAreaView } from 'react-native-safe-area-context'; 
 import { Ionicons } from "@expo/vector-icons";
-import { Button } from '../../components/button';
-import { Input } from '../../components/input';
+import { Button } from '../../components/Button';
+import { Input } from '../../components/Input';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';

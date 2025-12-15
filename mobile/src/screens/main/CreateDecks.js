@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet, StatusBar, Alert,
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+<<<<<<< HEAD
 import * as DocumentPicker from 'expo-document-picker';
 // Usando TextInput padrão do react-native
 import { TextInput } from 'react-native'; 
@@ -148,6 +149,8 @@ const compStyles = StyleSheet.create({
 // =========================================================
 // 2. COMPONENTE PRINCIPAL (COM LÓGICA DE API)
 // =========================================================
+=======
+>>>>>>> 88dd7657b932da426b5656b1ef71cfe9660122bb
 
 export default function CreateDecks() {
   const navigation = useNavigation();
